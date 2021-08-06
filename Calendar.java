@@ -39,7 +39,7 @@ public class Calendar {
 
     /* getDaysInMonth: takes a month and year as integers and returns
         the number of days in that month, accounting for leap years */
-    public int getDaysInMonth(int month, int year) {
+    public static int getDaysInMonth(int month, int year) {
         int daysInMonth = 0;
         if(month == 2) { //february
             //checking for leap year
@@ -57,39 +57,61 @@ public class Calendar {
         return daysInMonth;
     }
 
+    public static void printCalendar(int firstDateOfMonth, int daysInFirstMonth) {
+        int firstDateOfWeek = firstDateOfMonth;
+    
+        for(int i = 0; i < 4; i++){
+          System.out.println("+----------+----------+----------+----------+----------+----------+----------+");
+  
+          for(int j = 0; j < 7; j++) {
+              if(firstDateOfWeek + j > daysInFirstMonth) {
+                  firstDateOfWeek = 1 - j;
+              }
+              System.out.print("| " + getThreeLetterDay(j + 1) + " " + (firstDateOfWeek + j));
+              if((firstDateOfWeek + j) < 10) {
+                  System.out.print("    "); //4 spaces
+              } else {
+                  System.out.print("   "); //3 spaces
+              }
+          }
+          System.out.println("|");
+  
+          System.out.println("|==========|==========|==========|==========|==========|==========|==========|");
+          
+          //output events here
+          System.out.println("|          |          |          |          |          |          |          |");
+  
+          firstDateOfWeek += 7;
+        }
+        
+        System.out.println("+----------+----------+----------+----------+----------+----------+----------+");
+
+    }
+
 
     public static void main(String[] args) {
       //display calendar (4 weeks, each sunday to saturday, where current week is first week displayed)
-      LocalDate today = LocalDate.now();
+      //LocalDate today = LocalDate.now(); //today
+      LocalDate today = LocalDate.of(2021, 8, 25); //another day (year,month,day of month)
       int todayDayOfWeek = today.getDayOfWeek().getValue();
       int todayDayOfMonth = today.getDayOfMonth();
       int todayMonth = today.getMonthValue();
       int todayYear = today.getYear();
 
-      int startingDate = 1;
-    
-      for(int i = 0; i < 4; i++){
-        System.out.println("+----------+----------+----------+----------+----------+----------+----------+");
-
-        for(int j = 0; j < 7; j++) {
-            System.out.print("| " + getThreeLetterDay(j + 1) + " " + (startingDate + j));
-            if((startingDate + j) < 10) {
-                System.out.print("    "); //4 spaces
-            } else {
-                System.out.print("   "); //3 spaces
-            }
+      int firstDateOnCalendar = todayDayOfMonth - todayDayOfWeek;
+      //System.out.println(firstDateOnCalendar + " = " + todayDayOfMonth + " - " + todayDayOfWeek);
+      int daysInFirstMonth;
+      if(firstDateOnCalendar < 1) { //if calendar is starting in previous month
+        if(todayMonth == 1) {
+            daysInFirstMonth = getDaysInMonth(todayMonth - 1, todayYear - 1);
+        } else {
+            daysInFirstMonth = getDaysInMonth(todayMonth - 1, todayYear);
         }
-        System.out.println("|");
-
-        System.out.println("|==========|==========|==========|==========|==========|==========|==========|");
-        
-        //output events here
-        System.out.println("|          |          |          |          |          |          |          |");
-
-        startingDate += 7;
+        printCalendar(daysInFirstMonth + firstDateOnCalendar, daysInFirstMonth);
+      } else {
+          daysInFirstMonth = getDaysInMonth(todayMonth, todayYear);
+          printCalendar(firstDateOnCalendar, daysInFirstMonth);
       }
-      
-      System.out.println("+----------+----------+----------+----------+----------+----------+----------+");
 
       /*
       Event myevent = new Event("my event", 3, 25);
