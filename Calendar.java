@@ -1,9 +1,9 @@
-import java.time.LocalDate;
-import java.time.LocalTime;
-//import java.time.DayOfWeek;
+import java.time.*;
+
+import javax.lang.model.util.ElementScanner14;
 
 public class Calendar {
-    /* getThreeLetterDay: takes an integer 0-6 and returns
+    /* getThreeLetterDay: takes an integer 1-7 and returns
         a 3-letter string representing the corresponding day
         of the week. 1 = Sun, 2 = Mon, etc.
         could be implemented as enum instead(?) */
@@ -57,21 +57,50 @@ public class Calendar {
         return daysInMonth;
     }
 
-    public static void printCalendar(int firstDateOfMonth, int daysInFirstMonth) {
-        int firstDateOfWeek = firstDateOfMonth;
+    /* printCalendar: takes two LocalDate objects: one representing this first day of
+        today's week (weeks are Sun-Sat) and one representing today. prints a 5-week
+        calendar starting on the first day of today's week. */
+    public static void printCalendar(LocalDate firstDayOnCalendar, LocalDate today) {
+        LocalDate currentDay = firstDayOnCalendar;
     
-        for(int i = 0; i < 4; i++){
+        //print header at top of calendar with today's month and year
+        System.out.println("+----------------------------------------------------------------------------+");
+        System.out.print("|                                   " + today.getMonthValue() + "/" + today.getYear());
+        if(today.getMonthValue() < 10) {
+            System.out.println("                                   |"); //35 spaces
+        } else {
+            System.out.println("                                  |"); //34 spaces
+        }
+
+        for(int i = 0; i < 5; i++){
           System.out.println("+----------+----------+----------+----------+----------+----------+----------+");
   
           for(int j = 0; j < 7; j++) {
-              if(firstDateOfWeek + j > daysInFirstMonth) {
-                  firstDateOfWeek = 1 - j;
-              }
-              System.out.print("| " + getThreeLetterDay(j + 1) + " " + (firstDateOfWeek + j));
-              if((firstDateOfWeek + j) < 10) {
-                  System.out.print("    "); //4 spaces
+              if(currentDay.equals(today)) {
+                System.out.print("| > " + getThreeLetterDay(j + 1) + " " + currentDay.getDayOfMonth());
+                if(currentDay.getDayOfMonth() < 10) {
+                    System.out.print("  "); //2 spaces
+                } else {
+                    System.out.print(" "); //1 space
+                }  
               } else {
-                  System.out.print("   "); //3 spaces
+                System.out.print("| " + getThreeLetterDay(j + 1) + " " + currentDay.getDayOfMonth());
+                if(currentDay.getDayOfMonth() < 10) {
+                    System.out.print("    "); //4 spaces
+                } else {
+                    System.out.print("   "); //3 spaces
+                }  
+              }
+              
+              //if the next day is past the end of the month, adequately adjust current year, month, and day. else, increment currentDay by 1 day.
+              if(currentDay.getDayOfMonth() + 1 > getDaysInMonth(currentDay.getMonthValue(), currentDay.getYear())) {
+                if(currentDay.getMonthValue() == 12) {
+                    currentDay = LocalDate.of(currentDay.getYear() + 1, 1, 1);
+                } else {
+                    currentDay = LocalDate.of(currentDay.getYear(), currentDay.getMonthValue() + 1, 1); 
+                }
+              } else {
+                currentDay = LocalDate.of(currentDay.getYear(), currentDay.getMonthValue(), currentDay.getDayOfMonth() + 1);
               }
           }
           System.out.println("|");
@@ -80,8 +109,6 @@ public class Calendar {
           
           //output events here
           System.out.println("|          |          |          |          |          |          |          |");
-  
-          firstDateOfWeek += 7;
         }
         
         System.out.println("+----------+----------+----------+----------+----------+----------+----------+");
@@ -90,28 +117,31 @@ public class Calendar {
 
 
     public static void main(String[] args) {
-      //display calendar (4 weeks, each sunday to saturday, where current week is first week displayed)
-      //LocalDate today = LocalDate.now(); //today
-      LocalDate today = LocalDate.of(2021, 8, 25); //another day (year,month,day of month)
+      LocalDate today = LocalDate.now(); //today
+      //LocalDate today = LocalDate.of(2021, 6, 1); //a custom day (year,month,day of month)
       int todayDayOfWeek = today.getDayOfWeek().getValue();
       int todayDayOfMonth = today.getDayOfMonth();
       int todayMonth = today.getMonthValue();
       int todayYear = today.getYear();
 
+      
       int firstDateOnCalendar = todayDayOfMonth - todayDayOfWeek;
-      //System.out.println(firstDateOnCalendar + " = " + todayDayOfMonth + " - " + todayDayOfWeek);
-      int daysInFirstMonth;
-      if(firstDateOnCalendar < 1) { //if calendar is starting in previous month
+      int firstMonthOnCalendar;
+      int firstYearOnCalendar;
+      if(firstDateOnCalendar < 1) { //if calendar is starting in month previous to today's month
         if(todayMonth == 1) {
-            daysInFirstMonth = getDaysInMonth(todayMonth - 1, todayYear - 1);
+            firstYearOnCalendar = todayYear - 1;
+            firstMonthOnCalendar = 12;
         } else {
-            daysInFirstMonth = getDaysInMonth(todayMonth - 1, todayYear);
+            firstYearOnCalendar = todayYear;
+            firstMonthOnCalendar = todayMonth - 1;
         }
-        printCalendar(daysInFirstMonth + firstDateOnCalendar, daysInFirstMonth);
+        firstDateOnCalendar = getDaysInMonth(firstMonthOnCalendar, firstYearOnCalendar) + firstDateOnCalendar;
       } else {
-          daysInFirstMonth = getDaysInMonth(todayMonth, todayYear);
-          printCalendar(firstDateOnCalendar, daysInFirstMonth);
+          firstMonthOnCalendar = todayMonth;
+          firstYearOnCalendar = todayYear;
       }
+      printCalendar(LocalDate.of(firstYearOnCalendar,firstMonthOnCalendar,firstDateOnCalendar), today);
 
       /*
       Event myevent = new Event("my event", 3, 25);
