@@ -78,7 +78,15 @@ public class Event {
         return this.eventDate;
     }
 
-    //add time setters
+    //time setter where parameters are integers
+    public void setTime(int hour, int second) {
+        this.eventTime = LocalTime.of(hour, second);
+    }
+
+    //time setter where parameter is a LocalTime object
+    public void setTime(LocalTime eventTime) {
+        this.eventTime = eventTime;
+    }
 
     public LocalTime getTime() {
         return this.eventTime;
