@@ -84,5 +84,13 @@ public class Event {
         return this.eventTime;
     }
 
-    //add print method
+    public String toString() {
+        String output;
+        if(isAllDay) {
+            output = "Event name: " + eventName + "\nEvent date: " + eventDate + "\nEvent time: All day";
+        } else {
+            output = "Event name: " + eventName + "\nEvent date: " + eventDate + "\nEvent time: " + eventTime;
+        }
+        return output;
+    }
 }
