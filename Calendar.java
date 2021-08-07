@@ -1,7 +1,5 @@
 import java.time.*;
 
-import javax.lang.model.util.ElementScanner14;
-
 public class Calendar {
     /* getThreeLetterDay: takes an integer 1-7 and returns
         a 3-letter string representing the corresponding day
@@ -60,8 +58,25 @@ public class Calendar {
     /* printCalendar: takes two LocalDate objects: one representing this first day of
         today's week (weeks are Sun-Sat) and one representing today. prints a 5-week
         calendar starting on the first day of today's week. */
-    public static void printCalendar(LocalDate firstDayOnCalendar, LocalDate today) {
-        LocalDate currentDay = firstDayOnCalendar;
+    public static void printCalendar(LocalDate today) {
+        int firstDateOnCalendar = today.getDayOfMonth() - today.getDayOfWeek().getValue();
+        int firstMonthOnCalendar;
+        int firstYearOnCalendar;
+        if(firstDateOnCalendar < 1) { //if calendar is starting in month previous to today's month
+            if(today.getMonthValue() == 1) {
+                firstYearOnCalendar = today.getYear() - 1;
+                firstMonthOnCalendar = 12;
+            } else {
+                firstYearOnCalendar = today.getYear();
+                firstMonthOnCalendar = today.getMonthValue() - 1;
+            }
+            firstDateOnCalendar = getDaysInMonth(firstMonthOnCalendar, firstYearOnCalendar) + firstDateOnCalendar;
+        } else {
+            firstMonthOnCalendar = today.getMonthValue();
+            firstYearOnCalendar = today.getYear();
+        }
+
+        LocalDate currentDay = LocalDate.of(firstYearOnCalendar, firstMonthOnCalendar, firstDateOnCalendar);
     
         //print header at top of calendar with today's month and year
         System.out.println("+----------------------------------------------------------------------------+");
@@ -119,29 +134,14 @@ public class Calendar {
     public static void main(String[] args) {
       LocalDate today = LocalDate.now(); //today
       //LocalDate today = LocalDate.of(2021, 6, 1); //a custom day (year,month,day of month)
+      /*
       int todayDayOfWeek = today.getDayOfWeek().getValue();
       int todayDayOfMonth = today.getDayOfMonth();
       int todayMonth = today.getMonthValue();
       int todayYear = today.getYear();
+      */
 
-      
-      int firstDateOnCalendar = todayDayOfMonth - todayDayOfWeek;
-      int firstMonthOnCalendar;
-      int firstYearOnCalendar;
-      if(firstDateOnCalendar < 1) { //if calendar is starting in month previous to today's month
-        if(todayMonth == 1) {
-            firstYearOnCalendar = todayYear - 1;
-            firstMonthOnCalendar = 12;
-        } else {
-            firstYearOnCalendar = todayYear;
-            firstMonthOnCalendar = todayMonth - 1;
-        }
-        firstDateOnCalendar = getDaysInMonth(firstMonthOnCalendar, firstYearOnCalendar) + firstDateOnCalendar;
-      } else {
-          firstMonthOnCalendar = todayMonth;
-          firstYearOnCalendar = todayYear;
-      }
-      printCalendar(LocalDate.of(firstYearOnCalendar,firstMonthOnCalendar,firstDateOnCalendar), today);
+      printCalendar(today);
 
       /*
       Event myevent = new Event("my event", 3, 25);
