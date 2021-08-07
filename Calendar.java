@@ -177,6 +177,7 @@ public class Calendar {
       int userInput = -1;
       String inputName = "", inputDate = "", inputIsAllDay = "", inputTime = "";
       LocalDate inputLD = LocalDate.now();
+      LocalTime inputLT = LocalTime.now();
       boolean dateInputCorrect = false, isAllDayInputCorrect = false, timeInputCorrect = false;
 
       printCalendar(today, calEvents);
@@ -201,6 +202,7 @@ public class Calendar {
                         inputDate = keyboard.nextLine();
                     }
                 }
+                System.out.println();
                 for(int i = 0; i < calEvents.size(); i++) {
                     if(calEvents.get(i).getDate().equals(inputLD)) {
                         System.out.println(calEvents.get(i));
@@ -213,6 +215,7 @@ public class Calendar {
                 inputIsAllDay = "";
                 inputDate = "";
                 inputLD = LocalDate.now();
+                inputLT = LocalTime.now();
                 dateInputCorrect = false;
                 isAllDayInputCorrect = false;
                 timeInputCorrect = false;
@@ -241,12 +244,26 @@ public class Calendar {
                         calEvents.add(new Event(inputName, inputLD, true));
                         System.out.println("Event \"" + inputName + "\" added to calendar.");
                         isAllDayInputCorrect = true;
+
                     } else if(inputIsAllDay.equals("n") || inputIsAllDay.equals("no")) {
                         //if the new event is not all day
-                        System.out.print("Event time: ");
-                        //calEvents.add(new Event(name, date, time));
+                        System.out.print("Event time (HH:MM in 24-hour time): ");
+
+                        inputTime = keyboard.nextLine();
+                        while(!timeInputCorrect) {
+                            try {
+                                inputLT = LocalTime.parse(inputTime);
+                                timeInputCorrect = true;
+                            } catch(DateTimeParseException e) {
+                                System.out.print("Invalid time. Try again: ");
+                                inputTime = keyboard.nextLine();
+                            }
+                        }
+
+                        calEvents.add(new Event(inputName, inputLD, inputLT));
                         System.out.println("Event \"" + inputName + "\" added to calendar.");
                         isAllDayInputCorrect = true;
+
                     } else {
                         System.out.print("Invalid input. Try again: ");
                         inputIsAllDay = keyboard.nextLine().toLowerCase();
@@ -268,13 +285,7 @@ public class Calendar {
             }
           }
       }
-
-
-      /*
-      Event myevent = new Event("my event", 3, 25);
-      LocalTime thisTime = myevent.getTime();
-      System.out.println(thisTime);
-      */
+      
       keyboard.close();
     }
 }
