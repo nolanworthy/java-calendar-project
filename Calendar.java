@@ -3,8 +3,6 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-//import jdk.internal.icu.lang.UCharacter.NumericType;
-
 public class Calendar {
     /* getThreeLetterDay: takes an integer 1-7 and returns
         a 3-letter string representing the corresponding day
@@ -165,7 +163,6 @@ public class Calendar {
         }
         
         System.out.println("+----------+----------+----------+----------+----------+----------+----------+");
-
     }
 
 
@@ -174,14 +171,14 @@ public class Calendar {
       //LocalDate today = LocalDate.of(2021, 6, 1); //a custom day for testing (year,month,day of month)
       Scanner keyboard = new Scanner(System.in);
       ArrayList<Event> calEvents = new ArrayList<Event>();
-      int userInput = -1;
+      int userInput = -1, listSizeBeforeRemove = -1;
       String inputName = "", inputDate = "", inputIsAllDay = "", inputTime = "";
       LocalDate inputLD = LocalDate.now();
       LocalTime inputLT = LocalTime.now();
       boolean dateInputCorrect = false, isAllDayInputCorrect = false, timeInputCorrect = false;
 
       printCalendar(today, calEvents);
-      System.out.print("\n1: View events\t2: Add event\t3: Delete event\t\tAny other value: Quit\nEnter number: ");
+      System.out.print("\n1: View events\t2: Add event\t3: Delete event\t\tAny other value: Quit\nEnter value: ");
       if(keyboard.hasNextInt()) {
         userInput = Integer.parseInt(keyboard.nextLine()); //call nextLine() and parse as int in order to resolve error when calling nextInt()
         while(userInput == 1 || userInput == 2 || userInput == 3) {
@@ -191,6 +188,7 @@ public class Calendar {
                 inputLD = LocalDate.now();
                 dateInputCorrect = false;
 
+                //get date input and validate
                 System.out.print("Enter date you wish to view (YYYY-MM-DD): ");
                 inputDate = keyboard.nextLine();
                 while(!dateInputCorrect) {
@@ -202,7 +200,13 @@ public class Calendar {
                         inputDate = keyboard.nextLine();
                     }
                 }
+
+                //print the calendar
                 System.out.println();
+                printCalendar(today, calEvents);
+                System.out.println();
+
+                //print the events scheduled for the date input by the user
                 for(int i = 0; i < calEvents.size(); i++) {
                     if(calEvents.get(i).getDate().equals(inputLD)) {
                         System.out.println(calEvents.get(i));
@@ -221,9 +225,12 @@ public class Calendar {
                 timeInputCorrect = false;
 
                 System.out.println("\nEnter the following information about your new event.");
+
+                //get name input
                 System.out.print("Event name: ");
                 inputName = keyboard.nextLine();
 
+                //get date input and validate
                 System.out.print("Event date (YYYY-MM-DD): ");
                 inputDate = keyboard.nextLine();
                 while(!dateInputCorrect) {
@@ -236,19 +243,21 @@ public class Calendar {
                     }
                 }
 
+                //get boolean isAllDay input and validate
                 System.out.print("Is this an all-day event? ('y' or 'n'): ");
                 inputIsAllDay = keyboard.nextLine().toLowerCase();
                 while(!isAllDayInputCorrect) {
                     if(inputIsAllDay.equals("y") || inputIsAllDay.equals("yes")) {
                         //if the new event is all day
                         calEvents.add(new Event(inputName, inputLD, true));
-                        System.out.println("Event \"" + inputName + "\" added to calendar.");
+                        System.out.println();
+                        printCalendar(today, calEvents);
+                        System.out.println("\nEvent \"" + inputName + "\" added to calendar.");
                         isAllDayInputCorrect = true;
 
                     } else if(inputIsAllDay.equals("n") || inputIsAllDay.equals("no")) {
                         //if the new event is not all day
                         System.out.print("Event time (HH:MM in 24-hour time): ");
-
                         inputTime = keyboard.nextLine();
                         while(!timeInputCorrect) {
                             try {
@@ -261,7 +270,9 @@ public class Calendar {
                         }
 
                         calEvents.add(new Event(inputName, inputLD, inputLT));
-                        System.out.println("Event \"" + inputName + "\" added to calendar.");
+                        System.out.println();
+                        printCalendar(today, calEvents);
+                        System.out.println("\nEvent \"" + inputName + "\" added to calendar.");
                         isAllDayInputCorrect = true;
 
                     } else {
@@ -272,12 +283,54 @@ public class Calendar {
                 
             } else {
                 //delete event
-                //select date to delete from
+                inputLD = LocalDate.now();
+                inputName = "";
+                dateInputCorrect = false;
+
+                //get date input and validate
+                System.out.print("Enter the date of the event you wish to delete (YYYY-MM-DD): ");
+                inputDate = keyboard.nextLine();
+                while(!dateInputCorrect) {
+                    try {
+                        inputLD = LocalDate.parse(inputDate);
+                        dateInputCorrect = true;
+                    } catch(DateTimeParseException e) {
+                        System.out.print("Invalid date. Try again: ");
+                        inputDate = keyboard.nextLine();
+                    }
+                }
+
+                //print the events scheduled for the date input by the user
+                System.out.println();
+                for(int i = 0; i < calEvents.size(); i++) {
+                    if(calEvents.get(i).getDate().equals(inputLD)) {
+                        System.out.println(calEvents.get(i).getName());
+                    }
+                }
+
+                System.out.print("Enter the name of the event you wish to delete: ");
+                inputName = keyboard.nextLine();
+                listSizeBeforeRemove = calEvents.size();
+
+                //remove events where name and date much those input by user
+                for(int i = 0; i < calEvents.size(); i++) {
+                    if(calEvents.get(i).getDate().equals(inputLD) && calEvents.get(i).nameEquals(inputName)) {
+                        calEvents.remove(i);
+                        i--; //ArrayList size reduced by 1 after removing, so decrement i to avoid skipping an element
+                    }
+                }
+
+                System.out.println();
+                printCalendar(today, calEvents);
+                //output how many events were deleted
+                if(listSizeBeforeRemove - calEvents.size() == 1) {
+                    System.out.println("1 event deleted.");
+                } else {
+                    System.out.println((listSizeBeforeRemove - calEvents.size()) + " events deleted.");
+                }
             }
 
-            System.out.println();
-            printCalendar(today, calEvents);
-            System.out.print("\n1: View events\t2: Add event\t3: Delete event\t\tAny other value: Quit\nEnter number: ");
+            System.out.print("\n1: View events\t2: Add event\t3: Delete event\t\tAny other value: Quit\nEnter value: ");
             if(keyboard.hasNextInt()) {
                 userInput = Integer.parseInt(keyboard.nextLine()); //call nextLine() and parse as int in order to resolve error when calling nextInt()
             } else {
@@ -285,7 +338,7 @@ public class Calendar {
             }
           }
       }
-      
+
       keyboard.close();
     }
 }
