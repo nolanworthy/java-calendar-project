@@ -92,6 +92,15 @@ public class Event {
         return this.eventTime;
     }
 
+    //returns true if eventName of argument object is equal to this event's name
+    public boolean nameEquals(String argName) {
+        if(argName.toLowerCase().equals(this.eventName.toLowerCase())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public String toString() {
         String output;
         if(isAllDay) {
